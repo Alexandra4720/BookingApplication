@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookingApplication.DAL;
 using BookingApplication.Models;
@@ -26,10 +21,11 @@ namespace BookingApplication.Controllers
         public async Task<ActionResult<IEnumerable<ApartamentBooking>>> GetApartamentBookings()
         {
           if (_context.ApartamentBookings == null)
-          {
+            {
               return NotFound();
           }
-            return await _context.ApartamentBookings.ToListAsync();
+            return await _context.ApartamentBookings.Include(x => x.User).Include(x => x.Apartament).ToListAsync();
+
         }
 
         // GET: api/ApartamentBookings/5
@@ -40,7 +36,7 @@ namespace BookingApplication.Controllers
           {
               return NotFound();
           }
-            var apartamentBooking = await _context.ApartamentBookings.FindAsync(id);
+            var apartamentBooking = await _context.ApartamentBookings.Include(x => x.User).Include(x => x.Apartament).FirstOrDefaultAsync(i => i.Id == id);
 
             if (apartamentBooking == null)
             {

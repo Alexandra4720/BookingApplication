@@ -4,6 +4,7 @@ using BookingApplication.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookingApplication.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230424145549_addFKtoHotelReview")]
+    partial class addFKtoHotelReview
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,9 +72,6 @@ namespace BookingApplication.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Ap_Id")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("FirstDay")
                         .HasColumnType("datetime2");
 
@@ -85,8 +85,6 @@ namespace BookingApplication.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Ap_Id");
 
                     b.HasIndex("User_Id");
 
@@ -253,11 +251,11 @@ namespace BookingApplication.Migrations
 
             modelBuilder.Entity("BookingApplication.Models.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -279,26 +277,18 @@ namespace BookingApplication.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.ToTable("Users");
                 });
 
             modelBuilder.Entity("BookingApplication.Models.ApartamentBooking", b =>
                 {
-                    b.HasOne("BookingApplication.Models.Apartament", "Apartament")
-                        .WithMany()
-                        .HasForeignKey("Ap_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("BookingApplication.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("User_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Apartament");
 
                     b.Navigation("User");
                 });
@@ -312,7 +302,7 @@ namespace BookingApplication.Migrations
                         .IsRequired();
 
                     b.HasOne("BookingApplication.Models.User", "User")
-                        .WithMany("ApartamentReviews")
+                        .WithMany()
                         .HasForeignKey("User_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -331,7 +321,7 @@ namespace BookingApplication.Migrations
                         .IsRequired();
 
                     b.HasOne("BookingApplication.Models.User", "User")
-                        .WithMany("HotelReviews")
+                        .WithMany()
                         .HasForeignKey("User_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -379,13 +369,6 @@ namespace BookingApplication.Migrations
             modelBuilder.Entity("BookingApplication.Models.Hotel", b =>
                 {
                     b.Navigation("Reviews");
-                });
-
-            modelBuilder.Entity("BookingApplication.Models.User", b =>
-                {
-                    b.Navigation("ApartamentReviews");
-
-                    b.Navigation("HotelReviews");
                 });
 #pragma warning restore 612, 618
         }

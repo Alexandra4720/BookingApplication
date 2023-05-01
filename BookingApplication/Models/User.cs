@@ -4,17 +4,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace BookingApplication.Models
 {
     [Table("Users")]
-    public record User
+    public class User
     {
         [Key]
         [Required]
-        public int ID { get; set; }
+        public int Id { get; set; }
 
         public string Name { get; set; }
         public string Password { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
-        //rol
         public string Role { get; set; }
+
+        public List<HotelReview>? HotelReviews { get; set;}
+        public List<ApartamentReview>? ApartamentReviews { get;set;}
     }
 }

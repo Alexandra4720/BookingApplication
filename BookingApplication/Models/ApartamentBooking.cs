@@ -11,11 +11,14 @@ namespace BookingApplication.Models
         public int Id { get; set; }
 
         public int User_Id { get; set; }
+        public int Ap_Id { get; set; }
         public DateTime FirstDay { get; set; }
         public DateTime LastDay { get; set; }
         public int NumberOfPeople { get; set; }
 
         [ForeignKey("User_Id")]
-        public User User { get; set; }
+        public User? User { get; set; }
+        [ForeignKey("Ap_Id")]
+        public Apartament? Apartament { get; set; }
     }
 }

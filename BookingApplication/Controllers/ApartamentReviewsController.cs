@@ -29,7 +29,7 @@ namespace BookingApplication.Controllers
           {
               return NotFound();
           }
-            return await _context.ApartamentReviews.ToListAsync();
+            return await _context.ApartamentReviews.Include(x => x.User).Include(x => x.Apartament).ToListAsync();
         }
 
         // GET: api/ApartamentReviews/5
@@ -40,7 +40,7 @@ namespace BookingApplication.Controllers
           {
               return NotFound();
           }
-            var apartamentReview = await _context.ApartamentReviews.FindAsync(id);
+            var apartamentReview = await _context.ApartamentReviews.Include(x => x.User).Include(x => x.Apartament).FirstOrDefaultAsync(i => i.Id == id);
 
             if (apartamentReview == null)
             {

@@ -4,6 +4,7 @@ using BookingApplication.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookingApplication.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230424182855_modifiedUserModel")]
+    partial class modifiedUserModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,9 +72,6 @@ namespace BookingApplication.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Ap_Id")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("FirstDay")
                         .HasColumnType("datetime2");
 
@@ -85,8 +85,6 @@ namespace BookingApplication.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Ap_Id");
 
                     b.HasIndex("User_Id");
 
@@ -286,19 +284,11 @@ namespace BookingApplication.Migrations
 
             modelBuilder.Entity("BookingApplication.Models.ApartamentBooking", b =>
                 {
-                    b.HasOne("BookingApplication.Models.Apartament", "Apartament")
-                        .WithMany()
-                        .HasForeignKey("Ap_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("BookingApplication.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("User_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Apartament");
 
                     b.Navigation("User");
                 });

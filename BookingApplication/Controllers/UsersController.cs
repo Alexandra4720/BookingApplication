@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookingApplication.DAL;
 using BookingApplication.Models;
@@ -29,7 +24,7 @@ namespace BookingApplication.Controllers
           {
               return NotFound();
           }
-            return await _context.Users.ToListAsync();
+            return await _context.Users.Include(x => x.HotelReviews).Include(x => x.ApartamentReviews).ToListAsync();
         }
 
         // GET: api/Users/5
@@ -40,7 +35,7 @@ namespace BookingApplication.Controllers
           {
               return NotFound();
           }
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.Users.Include(x => x.HotelReviews).Include(x => x.ApartamentReviews).FirstOrDefaultAsync(i => i.Id == id);
 
             if (user == null)
             {
@@ -55,7 +50,7 @@ namespace BookingApplication.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
-            if (id != user.ID)
+            if (id != user.Id)
             {
                 return BadRequest();
             }
@@ -93,7 +88,7 @@ namespace BookingApplication.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.ID }, user);
+            return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
         // DELETE: api/Users/5
@@ -118,7 +113,7 @@ namespace BookingApplication.Controllers
 
         private bool UserExists(int id)
         {
-            return (_context.Users?.Any(e => e.ID == id)).GetValueOrDefault();
+            return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

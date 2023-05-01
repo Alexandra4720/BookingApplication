@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace BookingApplication.Models
 {
     [Table("RoomBookings")]
-    public record RoomBooking
+    public class RoomBooking
     {
         [Key]
         [Required]
@@ -17,21 +17,10 @@ namespace BookingApplication.Models
         public int NumberOfPeople { get; set; }
 
         [ForeignKey("User_Id")]
-        public User User { get; set; }
+        public User? User { get; set; }
         [ForeignKey("Room_Id")]
-        public Room Room { get; set; }
+        public Room? Room { get; set; }
+
     }
 
-   
-  /*public record Review
-    {
-        public int ID { get; set; }
-
-        ///[Required]
-        public int ID_User { get; set; }
-        public int ID_Product { get; set; }
-
-        public IEnumerable<Booking> Description { get; set; }
-        public int Starts { get; set; }
-    }*/
 }

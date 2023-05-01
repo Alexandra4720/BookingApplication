@@ -29,7 +29,7 @@ namespace BookingApplication.Controllers
           {
               return NotFound();
           }
-            return await _context.Hotels.ToListAsync();
+            return await _context.Hotels.Include(x => x.Reviews).ThenInclude(x => x.User).ToListAsync();
         }
 
         // GET: api/Hotels/5
@@ -40,14 +40,14 @@ namespace BookingApplication.Controllers
           {
               return NotFound();
           }
-            var hotel = await _context.Hotels.FindAsync(id);
+          var hotel = await _context.Hotels.Include(x => x.Reviews).ThenInclude(x => x.User).FirstOrDefaultAsync(i => i.Id == id);
 
-            if (hotel == null)
-            {
-                return NotFound();
-            }
+          if (hotel == null)
+          {
+              return NotFound();
+          }
 
-            return hotel;
+          return hotel;
         }
 
         // PUT: api/Hotels/5

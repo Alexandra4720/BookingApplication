@@ -4,13 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace BookingApplication.Models
 {
     [Table("HotelReviews")]
-    public record HotelReview
+    public class HotelReview
     {
         [Key]
         [Required]
         public int Id { get; set; }
 
-        //public int User_Id { get; set; }
         public int User_Id {get; set;}
         public int Hotel_Id { get; set; }
         public string Body { get; set; }
@@ -18,7 +17,7 @@ namespace BookingApplication.Models
         public DateTime Updated_at { get; set; }
         
         [ForeignKey("User_Id")]
-        public User User { get; set; }
-        public Hotel Hotel { get; set; }
-    }
+        public User? User { get; set; }
+        [ForeignKey("Hotel_Id")]
+        public Hotel? Hotel { get; set; }
 }

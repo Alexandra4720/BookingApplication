@@ -10,7 +10,6 @@ namespace BookingApplication.Models
         [Required]
         public int Id { get; set; }
 
-        //public int User_Id { get; set; }
         public int User_Id { get; set; }
         public int Apartament_Id { get; set; }
         public string Body { get; set; }
@@ -18,8 +17,8 @@ namespace BookingApplication.Models
         public DateTime Updated_at { get; set; }
         
         [ForeignKey("User_Id")]
-        public User User { get; set; }
+        public User? User { get; set; }
         [ForeignKey("Apartament_Id")]
-        public Apartament Apartament { get; set; }
+        public Apartament? Apartament { get; set; }
     }
 }
