@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookingApplication.DAL;
-using BookingApplication.Models;
+using BookingApplication.Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookingApplication.Controllers
 {

@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookingApplication.DAL;
-using BookingApplication.Models;
+using BookingApplication.Entities.Models;
+using BookingApplication.Entities.Pagination;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookingApplication.Controllers
 {
@@ -23,18 +20,22 @@ namespace BookingApplication.Controllers
 
         // GET: api/Hotels
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Hotel>>> GetHotels()
+        public async Task<ActionResult<IEnumerable<Hotel>>> GetHotels([FromQuery] PaginationFilter filter)
         {
-          if (_context.Hotels == null)
-          {
-              return NotFound();
-          }
-            return await _context.Hotels.Include(x => x.Reviews).ThenInclude(x => x.User).ToListAsync();
+            var validPageFilter = new PaginationFilter(filter.per_page, filter.current_page);
+            var hotelData = await _context.Hotels.Include(x => x.Reviews).ThenInclude(x => x.User)
+                .Skip((validPageFilter.current_page - 1) * validPageFilter.per_page)
+                .Take(validPageFilter.per_page)
+                .ToListAsync();
+
+            var countTotal = await _context.Hotels.CountAsync();
+
+            return Ok(new PaginatedResponse<List<Hotel>>(countTotal, validPageFilter.per_page, validPageFilter.current_page, hotelData));
         }
 
         // GET: api/Hotels/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Hotel>> GetHotel(int id)
+        public async Task<ActionResult<Hotel>> GetHotel([FromRoute]int id)
         {
           if (_context.Hotels == null)
           {

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookingApplication.Models
+namespace BookingApplication.Entities.Models
 {
     [Table("Users")]
     public class User
@@ -16,7 +16,7 @@ namespace BookingApplication.Models
         public string PhoneNumber { get; set; }
         public string Role { get; set; }
 
-        public List<HotelReview>? HotelReviews { get; set;}
-        public List<ApartamentReview>? ApartamentReviews { get;set;}
+        public List<HotelReview>? HotelReviews { get; set; }
+        public List<ApartamentReview>? ApartamentReviews { get; set; }
     }
 }

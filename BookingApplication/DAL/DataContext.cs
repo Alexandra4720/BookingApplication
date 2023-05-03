@@ -1,4 +1,4 @@
-﻿using BookingApplication.Models;
+﻿using BookingApplication.Entities.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookingApplication.DAL

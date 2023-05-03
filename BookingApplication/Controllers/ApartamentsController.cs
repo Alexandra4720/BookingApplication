@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookingApplication.DAL;
-using BookingApplication.Models;
+using BookingApplication.Entities.Models;
+using BookingApplication.Entities.Pagination;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookingApplication.Controllers
 {
@@ -23,13 +20,17 @@ namespace BookingApplication.Controllers
 
         // GET: api/Apartaments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Apartament>>> GetApartaments()
+        public async Task<ActionResult<IEnumerable<Apartament>>> GetApartaments([FromQuery] PaginationFilter filter)
         {
-          if (_context.Apartaments == null)
-          {
-              return NotFound();
-          }
-            return await _context.Apartaments.Include(x => x.Reviews).ThenInclude(x => x.User).ToListAsync();
+            var validPageFilter = new PaginationFilter(filter.per_page, filter.current_page);
+            var apartamentData = await _context.Apartaments.Include(x => x.Reviews).ThenInclude(x => x.User)
+                .Skip((validPageFilter.current_page - 1) * validPageFilter.per_page)
+                .Take(validPageFilter.per_page)
+                .ToListAsync();
+
+            var countTotal = await _context.Apartaments.CountAsync();
+
+            return Ok(new PaginatedResponse<List<Apartament>>(countTotal, validPageFilter.per_page, validPageFilter.current_page, apartamentData));
         }
 
         // GET: api/Apartaments/5

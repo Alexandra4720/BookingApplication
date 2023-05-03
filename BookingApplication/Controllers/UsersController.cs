@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BookingApplication.DAL;
-using BookingApplication.Models;
+using BookingApplication.Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookingApplication.Controllers
 {
@@ -43,6 +44,7 @@ namespace BookingApplication.Controllers
             }
 
             return user;
+            //return Ok(user.Select(e => new UserDto);
         }
 
         // PUT: api/Users/5

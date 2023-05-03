@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BookingApplication.Models
+namespace BookingApplication.Entities.Models
 {
     [Table("Rooms")]
     public class Room
@@ -16,7 +16,7 @@ namespace BookingApplication.Models
         public int Hotel_Id { get; set; }
 
         [ForeignKey("Hotel_Id")]
-        public Hotel? Hotel { get; set;}
+        public Hotel? Hotel { get; set; }
 
 
     }
