@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using BookingApplication.DAL;
 using BookingApplication.Entities.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using BookingApplication.Common;
 
 namespace BookingApplication.Controllers
 {
@@ -87,6 +89,7 @@ namespace BookingApplication.Controllers
           {
               return Problem("Entity set 'DataContext.Users'  is null.");
           }
+            user.Password = CommonMethods.ConvertToEncrypt(user.Password);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
