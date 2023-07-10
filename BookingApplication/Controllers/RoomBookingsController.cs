@@ -22,6 +22,32 @@ namespace BookingApplication.Controllers
             _context = context;
         }
 
+        [HttpPost("createBooking")]
+        public async Task<ActionResult<RoomBooking>> CreateRoomBooking(RoomBooking roomBooking)
+        {
+            // Validarea datelor de intrare
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                // Salvarea rezervării în baza de date
+                _context.RoomBookings.Add(roomBooking);
+                await _context.SaveChangesAsync();
+
+                return Ok("Rezervare salvată cu succes!");
+                //return CreatedAtAction("GetRoomBooking", new { id = roomBooking.Id }, roomBooking);
+            }
+            catch (Exception ex)
+            {
+                // În caz de eroare, întoarce un cod de eroare și mesajul de eroare
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+
         // GET: api/RoomBookings
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RoomBooking>>> GetRoomBookings()
@@ -115,6 +141,40 @@ namespace BookingApplication.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpDelete("DeleteBookingByUser")]
+        public async Task<IActionResult> DeleteBookingByUser(int bookingId, int userId)
+        {
+            var roomBooking = await _context.RoomBookings.FindAsync(bookingId);
+
+            if (roomBooking == null)
+            {
+                return NotFound(); // Rezervarea nu a fost găsită în baza de date
+            }
+
+            if (roomBooking.User_Id != userId)
+            {
+                return Forbid(); // Utilizatorul nu are dreptul să șteargă această rezervare
+            }
+
+            _context.RoomBookings.Remove(roomBooking);
+            await _context.SaveChangesAsync();
+
+            return Ok("Succes!");
+        }
+
+
+        [HttpGet("BookingsByUser")]
+        public ActionResult<IEnumerable<RoomBooking>> GetBookingsByUser(int userId)
+        {
+            var currentDate = DateTime.Now;
+            var userBookings = _context.RoomBookings
+                .Include(booking => booking.Room)
+                .ThenInclude(room => room.Hotel)
+                .Where(booking => booking.User_Id == userId && booking.FirstDay >= currentDate);
+
+            return Ok(userBookings);
         }
 
         private bool RoomBookingExists(int id)

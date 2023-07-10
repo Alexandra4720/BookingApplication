@@ -4,6 +4,9 @@ using BookingApplication.DAL;
 using BookingApplication.Entities.Models;
 using BookingApplication.Entities.Pagination;
 using Microsoft.AspNetCore.Authorization;
+using BookingApplication.Entities;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace BookingApplication.Controllers
 {
@@ -31,6 +34,94 @@ namespace BookingApplication.Controllers
             var countTotal = await _context.Hotels.CountAsync();
 
             return Ok(new PaginatedResponse<List<Hotel>>(countTotal, validPageFilter.per_page, validPageFilter.current_page, hotelData));
+        }
+
+
+        //private bool HasOverlappingBooking(List<Room> rooms, DateTime startDate, DateTime endDate)
+        //{
+        //    if (rooms != null)
+        //    {
+                
+        //        rooms.Where(rb => rb.Room_Id == room.Id)
+        //        foreach (var room in rooms)
+        //        {
+
+        //            if (startDate <= roomBooking.LastDay.Date && endDate.Date >= roomBooking.FirstDay.Date)
+        //            {
+        //                return true; //exista suprapuneri
+        //            }
+        //        }
+        //    }
+        //    return false; //nu exista
+        //}
+
+        // GET: api/Hotels
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Hotel>>> SearchFilterAndSortHotels([FromQuery] BookModel bookModel)
+        {
+            List<Hotel> hotels = new();
+            try
+            {
+                hotels = await _context.Hotels
+                            .Include(h => h.Rooms)
+                            .Include(h => h.RoomBookings)
+                            .Where(h => h.Country == bookModel.Country && h.City == bookModel.City)
+                            .Where(h => h.Rooms.Any(r => r.Capacity >= int.Parse(bookModel.Capacity)))
+                            .ToListAsync();
+                foreach(var hotel in hotels)
+                {
+                    List<Room> rooms = hotel.Rooms;
+                    List<Room> availableRooms = new();
+                    foreach(var room in rooms)
+                    {
+                        var roomBookings = await _context.RoomBookings.ToListAsync();
+                        bool isBooked = false;
+                        foreach(var roomBooking in roomBookings)
+                        {
+                            if(roomBooking.Room_Id == room.Id)
+                            {
+                                if (bookModel.StartDate <= roomBooking.LastDay.Date && bookModel.EndDate >= roomBooking.FirstDay.Date)
+                                { 
+                                    isBooked = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if(!isBooked)
+                        {
+                            availableRooms.Add(room);
+                        }
+                    }
+                    hotel.Rooms = availableRooms;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            hotels = hotels.Where(h => h.Rooms.Count() > 0).ToList();
+            hotels = hotels.OrderBy(h => h.Name).ToList();//sortare dupa nume hotel crescator
+
+            return Ok(hotels);
+
+        }
+
+        [HttpGet("last-three")]
+        public async Task<ActionResult<Hotel>> GetLastThreeLocations()
+        {
+            try
+            {
+                var lastThreeHotels = _context.Hotels
+                    .OrderByDescending(h => h.Id)
+                    .Take(3)
+                    .ToList();
+
+                return Ok(lastThreeHotels);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while retrieving locations.");
+            }
         }
 
         // GET: api/Hotels/5

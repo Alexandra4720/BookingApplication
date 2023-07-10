@@ -4,6 +4,7 @@ using BookingApplication.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BookingApplication.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230621145500_addFavorite")]
+    partial class addFavorite
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -130,7 +133,7 @@ namespace BookingApplication.Migrations
                     b.ToTable("ApartamentReviews");
                 });
 
-            modelBuilder.Entity("BookingApplication.Entities.Models.FavoriteApartament", b =>
+            modelBuilder.Entity("BookingApplication.Entities.Models.FavoriteItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -138,7 +141,10 @@ namespace BookingApplication.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ApartamentId")
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ItemType")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
@@ -146,34 +152,9 @@ namespace BookingApplication.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApartamentId");
-
                     b.HasIndex("UserId");
 
-                    b.ToTable("FavoriteApartaments");
-                });
-
-            modelBuilder.Entity("BookingApplication.Entities.Models.FavoriteHotel", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("HotelId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HotelId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("FavoriteHotels");
+                    b.ToTable("FavoriteItems");
                 });
 
             modelBuilder.Entity("BookingApplication.Entities.Models.Hotel", b =>
@@ -377,40 +358,13 @@ namespace BookingApplication.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("BookingApplication.Entities.Models.FavoriteApartament", b =>
+            modelBuilder.Entity("BookingApplication.Entities.Models.FavoriteItem", b =>
                 {
-                    b.HasOne("BookingApplication.Entities.Models.Apartament", "Apartament")
-                        .WithMany()
-                        .HasForeignKey("ApartamentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("BookingApplication.Entities.Models.User", "User")
-                        .WithMany("FavoriteApartaments")
+                        .WithMany("FavoriteItems")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Apartament");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("BookingApplication.Entities.Models.FavoriteHotel", b =>
-                {
-                    b.HasOne("BookingApplication.Entities.Models.Hotel", "Hotel")
-                        .WithMany()
-                        .HasForeignKey("HotelId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BookingApplication.Entities.Models.User", "User")
-                        .WithMany("FavoriteHotels")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Hotel");
 
                     b.Navigation("User");
                 });
@@ -488,9 +442,7 @@ namespace BookingApplication.Migrations
                 {
                     b.Navigation("ApartamentReviews");
 
-                    b.Navigation("FavoriteApartaments");
-
-                    b.Navigation("FavoriteHotels");
+                    b.Navigation("FavoriteItems");
 
                     b.Navigation("HotelReviews");
                 });

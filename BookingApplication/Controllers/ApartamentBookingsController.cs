@@ -47,6 +47,31 @@ namespace BookingApplication.Controllers
             return apartamentBooking;
         }
 
+        [HttpPost("createBooking")]
+        public async Task<ActionResult<ApartamentBooking>> CreateApartamentBooking(ApartamentBooking apartamentBooking)
+        {
+            // Validarea datelor de intrare
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                // Salvarea rezervării în baza de date
+                _context.ApartamentBookings.Add(apartamentBooking);
+                await _context.SaveChangesAsync();
+
+                return Ok("Rezervare salvată cu succes!");
+                //return CreatedAtAction("GetRoomBooking", new { id = roomBooking.Id }, roomBooking);
+            }
+            catch (Exception ex)
+            {
+                // În caz de eroare, întoarce un cod de eroare și mesajul de eroare
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
         // PUT: api/ApartamentBookings/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -110,7 +135,40 @@ namespace BookingApplication.Controllers
             _context.ApartamentBookings.Remove(apartamentBooking);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Succes!");
+        }
+
+        [HttpDelete("DeleteBookingByUser")]
+        public async Task<IActionResult> DeleteBookingByUser(int bookingId, int userId)
+        {
+            var apartamentBooking = await _context.ApartamentBookings.FindAsync(bookingId);
+
+            if (apartamentBooking == null)
+            {
+                return NotFound(); // Rezervarea nu a fost găsită în baza de date
+            }
+
+            if (apartamentBooking.User_Id != userId)
+            {
+                return Forbid(); // Utilizatorul nu are dreptul să șteargă această rezervare
+            }
+
+            _context.ApartamentBookings.Remove(apartamentBooking);
+            await _context.SaveChangesAsync();
+
+            return Ok("Succes!");
+        }
+
+
+        [HttpGet("BookingsByUser")]
+        public ActionResult<IEnumerable<ApartamentBooking>> GetBookingsByUser(int userId)
+        {
+            var currentDate = DateTime.Now;
+            var userBookings = _context.ApartamentBookings
+                .Include(booking => booking.Apartament)
+                .Where(booking => booking.User_Id == userId && booking.FirstDay >= currentDate);
+
+            return Ok(userBookings);
         }
 
         private bool ApartamentBookingExists(int id)

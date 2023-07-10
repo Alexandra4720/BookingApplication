@@ -18,6 +18,8 @@ namespace BookingApplication.DAL
         public DbSet<Room> Rooms { get; set;}
         public DbSet<RoomBooking> RoomBookings { get; set;}
         public DbSet<User> Users { get; set;}
+        public DbSet<BookingApplication.Entities.Models.FavoriteApartament>? FavoriteApartament { get; set; }
+        public DbSet<BookingApplication.Entities.Models.FavoriteHotel>? FavoriteHotel { get; set; }
 
     }
 }

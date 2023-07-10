@@ -5,6 +5,7 @@ using BookingApplication.Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using BookingApplication.Common;
+using BookingApplication.Entities;
 
 namespace BookingApplication.Controllers
 {
@@ -51,15 +52,27 @@ namespace BookingApplication.Controllers
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        [HttpPut("Update/{id}")]
+        public async Task<IActionResult> PutUser(int id, UpdateModel user)
         {
-            if (id != user.Id)
+            var userToUpdate = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if(userToUpdate == null)
             {
                 return BadRequest();
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            if(userToUpdate.Password != user.Password)
+            {
+                return BadRequest("Parola curenta este incorecta!");
+            }
+
+            userToUpdate.Name = user.Name;
+            userToUpdate.PhoneNumber = user.PhoneNumber;
+            if(user.NewPassword != "")
+            {
+                userToUpdate.Password = user.NewPassword;
+            }
+            _context.Entry(userToUpdate).State = EntityState.Modified;
 
             try
             {
@@ -77,7 +90,8 @@ namespace BookingApplication.Controllers
                 }
             }
 
-            return NoContent();
+            //return (IActionResult)user;
+            return Ok("Informatii actualizate cu succes!");
         }
 
         // POST: api/Users
@@ -89,13 +103,60 @@ namespace BookingApplication.Controllers
           {
               return Problem("Entity set 'DataContext.Users'  is null.");
           }
-            user.Password = CommonMethods.ConvertToEncrypt(user.Password);
+            //user.Password = CommonMethods.ConvertToEncrypt(user.Password);
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetUser", new { id = user.Id }, user);
         }
 
+        [Route("Login")]
+        [HttpPost]
+        public async Task<ActionResult<User>> Login(LoginModel model)
+        {
+            var encryptedPassword = model.Password;
+            //modif
+
+            var user = await _context.Users.FirstOrDefaultAsync(u =>
+                u.Email == model.Email &&
+                u.Password == encryptedPassword
+                //modif
+            );
+
+            if (user == null)
+            {
+                return NotFound("Invalid email or password");
+            }
+
+            // Returnează utilizatorul autentificat
+            return user;
+        }
+
+        // POST: api/Users/Register
+        [HttpPost("Register")]
+        public async Task<ActionResult<User>> Register(User user)
+        {
+            if (_context.Users == null)
+            {
+                return Problem("Entity set 'DataContext.Users' is null.");
+            }
+
+            // Verifică dacă adresa de email există deja în baza de date
+            if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+            {
+                return Conflict("A user with the same email already exists.");
+            }
+
+            // Alte validări și logica specifică înregistrării pot fi adăugate aici
+
+            // De exemplu, puteți adăuga validarea și logica pentru verificarea parolei, trimisul de email de confirmare etc.
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetUser", new { id = user.Id }, user);
+        }
+ 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)

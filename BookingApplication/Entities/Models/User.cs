@@ -14,9 +14,12 @@ namespace BookingApplication.Entities.Models
         public string Password { get; set; }
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
-        public string Role { get; set; }
 
         public List<HotelReview>? HotelReviews { get; set; }
         public List<ApartamentReview>? ApartamentReviews { get; set; }
+
+        public List<FavoriteHotel>? FavoriteHotels { get; set; }
+        public List<FavoriteApartament>? FavoriteApartaments { get; set; }
+
     }
 }

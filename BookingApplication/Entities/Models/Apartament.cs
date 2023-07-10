@@ -17,8 +17,9 @@ namespace BookingApplication.Entities.Models
         public int Capacity { get; set; }
         public int Price { get; set; }
         public string Description { get; set; }
-
+        public List<ApartamentBooking>? ApartamentBookings { get; set; }
         public List<ApartamentReview>? Reviews { get; set; }
+        public string PathImage { get; set; }
 
     }
 }

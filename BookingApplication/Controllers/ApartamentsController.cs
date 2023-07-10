@@ -4,6 +4,8 @@ using BookingApplication.DAL;
 using BookingApplication.Entities.Models;
 using BookingApplication.Entities.Pagination;
 using Microsoft.AspNetCore.Authorization;
+using BookingApplication.Entities;
+using System.Linq;
 
 namespace BookingApplication.Controllers
 {
@@ -37,10 +39,10 @@ namespace BookingApplication.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Apartament>> GetApartament(int id)
         {
-          if (_context.Apartaments == null)
-          {
-              return NotFound();
-          }
+            if (_context.Apartaments == null)
+            {
+                return NotFound();
+            }
             var apartament = await _context.Apartaments.Include(x => x.Reviews).ThenInclude(x => x.User).FirstOrDefaultAsync(i => i.Id == id);
 
             if (apartament == null)
@@ -49,6 +51,76 @@ namespace BookingApplication.Controllers
             }
 
             return apartament;
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Apartament>>> SearchFilterAndSortApartaments([FromQuery] BookModel bookModel)
+        {
+            List<Apartament> apartaments = new();
+            try
+            {
+                apartaments = await _context.Apartaments
+                            .Include(a => a.ApartamentBookings)
+                            .Where(a => a.Country == bookModel.Country && a.City == bookModel.City)
+                            .Where(a => a.Capacity >= int.Parse(bookModel.Capacity))
+                            .ToListAsync();
+                List<Apartament> availableApartaments = new();
+                foreach (var apartament in apartaments)
+                {              
+                    var apartamentBookings = await _context.ApartamentBookings.ToListAsync();
+                    bool isBooked = false;
+
+                    foreach (var apartamentBooking in apartamentBookings)
+                    {
+                        if (apartamentBooking.Ap_Id == apartament.Id)
+                        {
+                            if (bookModel.StartDate <= apartamentBooking.LastDay.Date && bookModel.EndDate >= apartamentBooking.FirstDay.Date)
+                            {
+                                isBooked = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!isBooked)
+                    {
+                        availableApartaments.Add(apartament);
+                    }         
+                }
+                apartaments = availableApartaments;
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+
+            //if(apartaments.Count() > 0)
+            //{
+            //    apartaments = apartaments.ToList();
+            //}
+
+            apartaments = apartaments.OrderBy(a => a.Name).ToList();
+
+            return Ok(apartaments);
+
+        }
+
+        [HttpGet("last-three")]
+        public async Task<ActionResult<Apartament>> GetLastThreeLocations()
+        {
+            try
+            {
+                var lastThreeApartaments = _context.Apartaments
+                    .OrderByDescending(a => a.Id)
+                    .Take(3)
+                    .ToList();
+
+                return Ok(lastThreeApartaments);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An error occurred while retrieving locations.");
+            }
         }
 
         // PUT: api/Apartaments/5
